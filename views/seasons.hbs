@@ -1,0 +1,143 @@
+<!--
+    Citation for the code turned in for CS 340 Step 4
+    Date: 11/10/2022
+    Adapted fromNode Starter App
+    Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+
+<head>
+<title>Seasons</title>
+</head>
+<body>
+
+
+<h1>Seasons</h1>
+<h2>Browse or Update Seasons</h2>
+
+<div id="searchByDivision">
+  <form id="searchByDivision" method="GET" action='/seasons'>
+      <legend><strong>See Seasons By Division</strong></legend>
+      <caption>Choose Division</caption>
+      <fieldset class="fields">
+          <label>Choose Division</label>
+          <select name="divisionID" id="searchDivision">
+                <option value="">Select a Division</option>
+                {{#each divisions}}
+                <option value="{{this.divisionID}}">{{this.description}}</option>
+                {{/each}}
+            </select>
+      </fieldset>
+      <button type="submit">View Seasons</button>
+      <a href='/seasons'><button>Reset</button></a>
+  </form>
+</div><!-- search -->
+
+<p></p>
+
+<div id="browse">  
+   <table id="seasonTable">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.seasonID}}>  
+                <td><button onclick="deleteSeason({{this.seasonID}})">Delete</button></td>
+               <td>{{this.Season}}</td>  
+               <td>{{this.StartDate}}</td>  
+               <td>{{this.EndDate}}</td>  
+               <td>{{this.Fee}}</td>  
+               
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+   <script src="./js/players/delete_player.js"></script>
+</div>  
+
+<p>&nbsp;</p> 
+
+<div id="insert">
+{{!-- Form to add a record to the table using standard HTML forms --}}
+<h2>Add a New Season</h2>
+<p>To add a new season, please update the settings below and click `Submit`!</p>
+<form id="add-season-form" method="POST" action="/add-season-form">
+
+    <label for="input-desc">Season Description: </label>
+    <input type="text" name="input-desc" id="input-desc">
+    <br/>
+    <label>Start Date: </label> <input type="date" name="input-startDate" id="input-startDate"> 
+    <br />
+    <label>End Date: </label> <input type="date" name="input-endDate" id="input-endDate"> 
+    <br />
+    <label>Season Fee: </label> <input type="number" name="input-fee" id="input-fee"> 
+    <br />
+
+</fieldset>
+          <input class="btn" type="submit" id="addSeason" value="Add Season">
+          <input class="btn" type="button" value="Cancel" onClick="browseSeasons()">
+	</form>
+
+
+{{!-- Form to add a record to the table using standard HTML forms --}}
+<h2>Add a Division to a Season</h2>
+<p>Select a Season, and Select a Division That will Play in That Season</p>
+<form id="add-seasonDivision-form" method="POST" action="/add-seasonDivision-form">
+
+     <label> Season </label>
+     <select name="select-season" id="select-season">
+              <option value=" " selected>Season</option>
+              {{#each seasons}}
+                <option value="{{this.seasonID}}">{{this.description}}</option>
+                {{/each}}
+                </select>
+
+    <label> Division to Add: </label> 
+            <select name="select-division" id="select-division">
+              <option value="">Choose Division</option>
+              {{#each divisions}}
+                <option value="{{this.divisionID}}">{{this.description}}</option>
+                {{/each}}             
+                </select>     
+
+
+            
+               
+      </fieldset>
+          <input class="btn" type="submit" id="addSeasonDivision" value="Add SeasonDivision">
+          <input class="btn" type="button" value="Cancel" onClick="browseSeasons()">
+	</form> 
+</div><!-- insert -->
+
+<script src="./js/add_team.js"></script>
+
+<p>&nbsp;</p> 
+
+<h2>Update a Team's Mascot in the table</h2>
+
+<div id="updateTeam">
+    <form id="updateTeamAjax">
+        <label for="inputName">Team Name: </label>
+        <select name="inputNameUpdate" id="inputNameUpdate">
+            <option value="test">Select a Team</option>
+            {{#each data}}
+            <option value="{{this.teamID}}">{{this.name}}</option>
+            {{/each}}
+        </select>
+
+        <label for="inputMascot">Mascot: </label>
+        <input type="text" name="inputMascotUpdate" id="inputMascotUpdate">
+        <input type="submit">
+    </form>
+</div><!-- update -->
+
+<script src="./js/update_team.js"></script>
+
+ </body>

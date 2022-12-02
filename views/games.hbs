@@ -1,0 +1,122 @@
+<!--
+    Citation for the code turned in for CS 340 Step 5
+    Date: 11/16/2022
+    Adapted from Michael McDonell's adaptation of the Node Starter App
+    Node Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+<head>
+<title>Games</title>
+</head>
+<h1>Games</h1>
+<h2>Browse or Update Games</h2>
+
+<p></p>
+
+<div id="browse">  
+   <table id="gameTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.gameID}}>  
+               <td>{{this.gameID}}</td>  
+               <td>{{this.dateTime}}</td>
+               <td>{{this.homeScore}}</td>  
+               <td>{{this.awayScore}}</td>  
+               <td>{{this.fieldNumber}}</td>
+               <td>{{this.homeTeamID}}</td>  
+               <td>{{this.awayTeamID}}</td>
+               <td>{{this.refereeID}}</td>  
+               <td><button onclick="deleteGame({{this.gameID}})">Delete</button></td>
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+   <script src="./js/games/delete_game.js"></script>
+</div>  
+
+<p>&nbsp;</p> 
+
+<h2>Insert an Game into the table</h2>
+  
+<div id="insertGame">
+    <form id="insertGameAjax">
+        <legend><strong>Add Game</strong></legend>
+        <fieldset class="fields">
+            <label for="inputDateTime">Game DateTime</label>
+            <input type="date" name="inputDateTime" id="inputDateTime">
+
+            <label for="inputHomeScore">Home Score</label>
+            <input type="text" name="inputHomeScore" id="inputHomeScore">
+
+            <label for="inputAwayScore">Away Score</label>
+            <input type="text" name="inputAwayScore" id="inputAwayScore">
+
+            <label for="inputFieldNumber">Field Number</label>
+            <input type="text" name="inputFieldNumber" id="inputFieldNumber">
+
+            <label for="inputHomeTeamID">Home Team ID</label>
+            <input type="text" name="inputHomeTeamID" id="inputHomeTeamID">
+
+            <label for="inputAwayTeamID">Away Team ID</label>
+            <input type="text" name="inputAwayTeamID" id="inputAwayTeamID">
+
+            <label for="inputRefereeID">Referee ID</label>
+            <input type="text" name="inputRefereeID" id="inputRefereeID">
+
+            <input type="submit">
+        </fieldset>
+    </form> 
+</div><!-- insert -->
+
+<script src="./js/games/add_game.js"></script>
+
+<p>&nbsp;</p> 
+
+<h2>Update a Game's info in the table</h2>
+
+<p> Note: You must write the exact same Home Team ID, Away Team ID, and Referee ID as in the table, as these are Foreign Keys. You cannot update these or leave them blank. </p>
+<div id="updateGame">
+    <form id="updateGameAjax">
+        <label for="updateInfo">Game to Update: </label>
+        <select name="inputNameUpdate" id="inputNameUpdate">
+            {{#each data}}
+            <option value="{{this.gameID}}">{{this.dateTime}}</option>
+            {{/each}}
+        </select>
+            <label for="updateDateTime">Game DateTime</label>
+            <input type="datetime-local" name="updateDateTime" id="updateDateTime">
+
+            <label for="updateHomeScore">Home Score</label>
+            <input type="number" name="updateHomeScore" id="updateHomeScore">
+
+            <label for="updateAwayScore">Away Score</label>
+            <input type="number" name="updateAwayScore" id="updateAwayScore">
+
+            <label for="updateFieldNumber">Field Number</label>
+            <input type="number" name="updateFieldNumber" id="updateFieldNumber">
+
+            <label for="updateHomeTeamID">Home Team ID</label>
+            <input type="number" name="updateHomeTeamID" id="updateHomeTeamID">
+
+            <label for="updateAwayTeamID">Away Team ID</label>
+            <input type="number" name="updateAwayTeamID" id="updateAwayTeamID">
+
+            <label for="updateRefereeID">Referee ID</label>
+            <input type="number" name="updateRefereeID" id="updateRefereeID">
+
+        <input type="submit">
+    </form>
+</div><!-- update -->
+
+<script src="./js/games/update_game.js"></script>
+
+ </body>

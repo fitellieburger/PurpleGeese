@@ -27,6 +27,15 @@ app.engine('.hbs', engine({extname: ".hbs"}));
 app.set('view engine', '.hbs');
 
 /*
+   INDEX ROUTES
+*/
+
+app.get('/', function(req, res){
+    return res.render('index');
+})
+
+
+/*
   SEASONS ROUTES
 */
 // GET
@@ -142,24 +151,24 @@ app.post("/addDivision", function(req, res) {
     let data = req.body
     
     // Capture NULL values
-    let description = parseInt(data.description);
-    if (isNaN(description)) {
+    let description = data.description;
+    if (description === '') {
         description = 'NULL'
     }
 
     let minAge = parseInt(data.minAge);
     if (isNaN(minAge)) {
-        minAge = 'NULL'
+        minAge = 0
     }
 
     let maxAge = parseInt(data.maxAge);
     if (isNaN(maxAge)) {
-        maxAge = 'NULL'
+        maxAge = 0
     }
 
-    let gender = parseInt(data.gender);
-    if (isNaN(gender)) {
-        gender = 'NULL'
+    let gender = data.gender;
+    if (gender === '') {
+        gender = '?'
     }
 
     let minPlayers = parseInt(data.minPlayers);
@@ -177,15 +186,15 @@ app.post("/addDivision", function(req, res) {
         ballSize = 'NULL'
     }
 
-    let netSize = parseInt(data.netSize);
-    if (isNaN(netSize)) {
+    let netSize = data.netSize;
+    if (netSize === '') {
         netSize = 'NULL'
     }
 
     // Create the query and run it on the database
     query1 = `INSERT INTO Divisions(description, minAge, maxAge, gender, minPlayers, maxPlayers, ballSize, netSize)
-    VALUES ('${data.description}', '${data.minAge}', '${data.maxAge}', '${data.gender}', 
-    '${data.minPlayers}', '${data.maxPlayers}', '${data.ballSize}', '${data.netSize}');`
+    VALUES ('${description}', '${minAge}', '${maxAge}', '${gender}', 
+    '${minPlayers}', '${maxPlayers}', '${ballSize}', '${netSize}');`
 
     db.pool.query(query1, function(error, rows, fields){
         // Check to see if there was an error
@@ -215,87 +224,94 @@ app.post("/addDivision", function(req, res) {
     })
 });
 
+
 // PUT
 app.put("/updateDivision", function(req,res,next){
     let data = req.body;
     let divisionID = parseInt(data.divisionID);
-    let description = parseInt(data.description);
+    let description = data.description;
     let minAge = parseInt(data.minAge);
     let maxAge = parseInt(data.maxAge);
-    let gender = parseInt(data.gender);
+    let gender = data.gender;
     let minPlayers = parseInt(data.minPlayers);
     let maxPlayers = parseInt(data.maxPlayers);
     let ballSize = parseInt(data.ballSize);
-    let netSize = parseInt(data.netSize);
+    let netSize = data.netSize;
 
-    // Capture NULL Values
-    if (isNaN(minAge)) {
-        minAge = 4
-    }
-    if (isNaN(maxAge)) {
-        maxAge = 18
-    }
-    if (gender === '') {
-        gender = 'C'
-    } 
-    if (isNaN(minPlayers)) {
-        minPlayers = 4
-    }
-    if (isNaN(maxPlayers)) {
-        maxPlayers = 15
-    }
-    if (isNaN(ballSize)) {
-        ballSize = 'NULL'
-    }
-    if (isNaN(netSize)) {
-        netSize = 'NULL'
-    }
+    // Capture NULL values
     if (description === '') {
-        description = `${maxAge}U ${gender}`
+        description = 'n/a'
     }
+
+    if (isNaN(minAge)) {
+        minAge = 0
+    }
+
+    if (isNaN(maxAge)) {
+        maxAge = 0
+    }
+
+    if (gender === '') {
+        gender = 'M'
+    } 
+
+    if (isNaN(minPlayers)) {
+        minPlayers = 'NULL'
+    }
+
+    if (isNaN(maxPlayers)) {
+        maxPlayers = 'NULL'
+    }
+
+    if (isNaN(ballSize)) {
+    ballSize = 'NULL'
+    }
+
+if (netSize === '') {
+    netSize = 'n/a'
+}
+
+let query1 = `UPDATE Divisions \
+SET divisionID = '${divisionID}', \
+    description = '${description}', \
+    minAge = '${minAge}', \
+    maxAge = '${maxAge}', \
+    gender = '${gender}', \
+    minPlayers = '${minPlayers}', \
+    maxPlayers = '${maxPlayers}', \
+    ballSize = '${ballSize}', \
+    netSize = '${netSize}' \
+WHERE Divisions.divisionID = '${divisionID}';`;
+
+let query2 = `SELECT * FROM Divisions WHERE divisionID = '${divisionID}';`;
+
+// Run the 1st query
+db.pool.query(query1, function(error, rows, fields){
+    if (error){
+    // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+        console.log(data)
+        console.log(error);
     
-    let query1 = `UPDATE Divisions \
-    SET divisionID = '${divisionID}', \
-        description = '${description}', \
-        minAge = '${minAge}', \
-        maxAge = '${maxAge}', \
-        gender = '${gender}', \
-        minPlayers = '${minPlayers}', \
-        maxPlayers = '${maxPlayers}', \
-        ballSize = '${ballSize}', \
-        netSize = '${netSize}' \
-    WHERE Divisions.divisionID = '${divisionID}';`;
+    res.sendStatus(400);
+    }
 
-    let query2 = `SELECT * FROM Divisions WHERE divisionID = '${divisionID}';`;
-
-    // Run the 1st query
-    db.pool.query(query1, function(error, rows, fields){
-        if (error){
-        // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
-            console.log(data)
-            console.log(error);
+    else{
+        // Run the second query
+        db.pool.query(query2, function(error, rows, fields) {
         
-        res.sendStatus(400);
-        }
-    
-        else{
-            // Run the second query
-            db.pool.query(query2, function(error, rows, fields) {
+            if (error){
+                console.log(error);
+                res.sendStatus(400);
+            } 
             
-                if (error){
-                    console.log(error);
-                    res.sendStatus(400);
-                } 
-                
-                else{
-                    res.send(rows);
-                }
-            })
-        }
-    })
+            else{
+                res.send(rows);
+            }
+        })
+    }
+})
 });
 
-// DELETE
 app.delete("/deleteDivision", function(req,res,next){
     let data = req.body;
     let divisionID = parseInt(data.divisionID);
@@ -308,7 +324,11 @@ app.delete("/deleteDivision", function(req,res,next){
         console.log(error);
         res.sendStatus(400);
         }
-  })});
+        else{
+            res.sendStatus(204);
+        }
+  })
+});
 
 
   /*
@@ -602,14 +622,12 @@ app.delete('/deleteTeamAjax/', function(req,res,next){
 
 // GET
 app.get("/adults", function(req, res) {
-    let query1 = `SELECT adultID AS '_', firstName, lastName, phone, email from Adults
-    ORDER BY Adults.lastName ASC, Adults.firstName ASC
-    ;`;
+    let query1 = `SELECT * FROM Adults;`;
 
     db.pool.query(query1, function(error, rows, fields) {
         let adults = rows;
         return res.render('adults', {data: adults})
-    })
+    })    
 })
 
 // POST
@@ -681,7 +699,6 @@ app.post("/addAdult", function(req, res) {
     })
 });
 
-// PUT
 app.put("/updateAdult", function(req,res,next){
     let data = req.body;
     let adultID = parseInt(data.adultID);
@@ -728,7 +745,7 @@ app.put("/updateAdult", function(req,res,next){
 app.delete("/deleteAdult", function(req,res,next){
     let data = req.body;
     let adultID = parseInt(data.adultID);
-    let query1 = `DELETE FROM Adults WHERE adultID = '${adultID}'`;
+    let query1 = `DELETE FROM Adults WHERE adultID = ?`;
 
     // Run the 1st query
     db.pool.query(query1, [adultID], function(error, rows, fields){
@@ -737,7 +754,13 @@ app.delete("/deleteAdult", function(req,res,next){
         console.log(error);
         res.sendStatus(400);
         }
-  })});
+        else{
+            res.sendStatus(204);
+        }
+  })
+});
+
+
 /*
     PLAYERS ROUTES
 */
@@ -745,6 +768,7 @@ app.delete("/deleteAdult", function(req,res,next){
 // GET
 app.get('/players', function(req, res){
     let query1;
+    let query2;
     if(req.query.divisionID === undefined){
         query1 = "SELECT Players.playerID AS '_', Seasons.description AS 'RecentSeason', Divisions.description AS 'Division', Teams.name AS 'RecentTeam', \
         CONCAT(Players.firstName, ' ', Players.lastName) AS 'PlayerName', \
@@ -759,6 +783,8 @@ app.get('/players', function(req, res){
         INNER JOIN Divisions ON Divisions.divisionID = SeasonsDivisions.divisionID \
         ORDER BY Divisions.description ASC, Teams.name ASC, Players.lastName ASC, Players.firstName ASC \
         ;";
+
+        query2 = "SELECT * FROM Teams;";
 }
     else{
         query1 = `SELECT Players.playerID AS '_', Seasons.description AS 'RecentSeason', Divisions.description AS 'Division', Teams.name AS 'RecentTeam', \
@@ -774,25 +800,59 @@ app.get('/players', function(req, res){
         INNER JOIN Divisions ON Divisions.divisionID = SeasonsDivisions.divisionID \
         WHERE Divisions.divisionID LIKE ${req.query.searchDivisionID} \
         ORDER BY Divisions.description ASC, Teams.name ASC, Players.lastName ASC, Players.firstName ASC \
-        ;` 
-    }
+        ;` ;
 
+        query2 = `SELECT * FROM Teams WHERE divisionID = ${req.query.searchDivisionID};`;
+    }
         let query3 = "SELECT * FROM Divisions;";
 
         db.pool.query(query1, function(error, rows, fields){
             let players = rows;
                 
+            db.pool.query(query2, function(error, rows, fields){
+
+            let teams = rows;
+            
                 db.pool.query(query3, (error, rows, fields)=>{
                     let divisions = rows;
 
                     return res.render('players', {data: players, 
-                        volunteers: volunteers, divisions: divisions});
+                        teams: teams,
+                         divisions: divisions});
                 })
-            
+            })
         })
     });     
 
 // POST
+
+// PUT
+app.put('/putPlayer', function(req,res,next){
+    let data = req.body;
+    let player = parseInt(data.players);
+    let teamID = parseInt(data.teamID);
+
+    if(isNaN(teamID)){
+        teamID = 'NULL';
+    }
+
+    let queryUpdate = `UPDATE Players SET Players.playerTeamID = ? \
+    WHERE Players.playerID = ?`;
+
+    // Run the 1st query
+    db.pool.query(queryUpdate, [teamID, player], 
+        function(error, rows, fields){
+        if(error){
+        // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+        console.log(error);
+        res.sendStatus(400);
+        }
+        else{
+            res.send(rows);
+        }
+    })
+    
+});
 
 
 // DELETE
@@ -815,10 +875,11 @@ app.delete("/deletePlayer", function(req,res,next){
 /*
   VOLUNTEERS ROUTES
 */
+// GET
 app.get('/volunteers', function(req, res){
     let query1;
     if(req.query.role === undefined){
-        query1 = "SELECT volunteerID, Seasons.description AS 'Season', \
+        query1 = "SELECT volunteerID AS '_', Seasons.description AS 'Season', \
         Divisions.description AS 'Division',  Teams.name AS 'Team', \
         CONCAT (Adults.firstName, ' ', Adults.lastName) AS 'Name', \
         Volunteers.role AS 'Role', Volunteers.details AS 'Details', \
@@ -834,7 +895,7 @@ app.get('/volunteers', function(req, res){
         ;";
 }
     else{
-        query1 = `SELECT volunteerID, Seasons.description AS 'Season', \
+        query1 = `SELECT volunteerID AS '_', Seasons.description AS 'Season', \
         Divisions.description AS 'Division',  Teams.name AS 'Team', \
         CONCAT (Adults.firstName, ' ', Adults.lastName) AS 'Name', \
         Volunteers.role AS 'Role', Volunteers.details AS 'Details', \
@@ -851,14 +912,12 @@ app.get('/volunteers', function(req, res){
         ;` 
     }
 
-        let query2 = "SELECT volunteerID, concat(Adults.firstName,' ' ,\
-                    Adults.lastName) as 'coach' \
-                    FROM Volunteers \
-                    INNER JOIN Adults ON Volunteers.adultID = Adults.adultID\
-                    WHERE Volunteers.role = 'Coach' \
-                    ORDER BY Adults.adultID;";
+        let query2 = "SELECT role FROM Volunteers \
+                    GROUP BY role\
+                    ORDER BY role;";
 
-        let query3 = "SELECT * FROM Divisions;";
+        let query3 = "SELECT * FROM Teams\
+                        ORDER BY name;";
 
         db.pool.query(query1, function(error, rows, fields){
             let data = rows;
@@ -867,19 +926,200 @@ app.get('/volunteers', function(req, res){
                 let volunteers = rows;
                 
                 db.pool.query(query3, (error, rows, fields)=>{
-                    let divisions = rows;
+                    let teams = rows;
 
                     return res.render('volunteers', {data: data, 
-                        volunteers: volunteers, divisions: divisions});
+                        volunteers: volunteers, teams: teams});
                 })
             })
         })
     });     
 
+// POST
+app.post('/addVolunteerTeam', function(req, res){
+    // Capture the incoming data and parse it back to a JS object
+    let data = req.body;
+
+    let volunteer = parseInt(data.volunteers);
+    let teamID = parseInt(data.teamID);
+    
+
+    // Capture NULL values
+
+    if(isNaN(teamID)){
+        teamID = 'NULL';
+    }
+
+    // Create the query and run it on the database
+    
+    query1 = `INSERT INTO Volunteers (role, details, adultID, teamID) \
+    SELECT role, details, adultID, teamID FROM Volunteers WHERE volunteerID = ${volunteer};\
+    `
+    if(data.details === "none"){
+    query2 = `UPDATE Volunteers SET teamID = ${teamID}\
+      WHERE volunteerID = ${volunteer};`
+    }
+
+    else if(teamID === 0){
+        query2 = `UPDATE Volunteers SET details = '${data.details}'\
+        WHERE volunteerID = ${volunteer};`
+    }
+
+    else{
+        query2 = `UPDATE Volunteers SET teamID = ${teamID},\
+        details = '${data.details}' WHERE volunteerID = ${volunteer};`
+    }
+    
+    // run the 1st query
+    db.pool.query(query1, function(error, rows, fields){
+
+        // Check to see if there was an error
+        if (error){
+            // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+            console.log(error)
+            res.sendStatus(400);
+        }
+
+        else{
+            // Run the second query
+            db.pool.query(query2, [teamID, data.details, volunteer], function(error, rows, fields) {
+            
+                if (error){
+                    console.log(error);
+                    res.sendStatus(400);
+                } 
+            
+                    else{
+                    res.send(rows);
+                    }
+                
+                        
+            })       
+        }
+    })
+})
+;
+
+
+// PUT
+app.put('/putVolunteerTeam', function(req,res,next){
+    let data = req.body;
+    let volunteer = parseInt(data.volunteers);
+    let teamID = parseInt(data.teamID);
+    let details = data.details;
+
+    if(isNaN(teamID)){
+        teamID = 'NULL';
+    }
+
+    let queryUpdate
+    if(details === "none"){
+    
+        queryUpdate = `UPDATE Volunteers SET Volunteers.teamID = ? WHERE Volunteers.volunteerID = ?;`;
+
+        // Run the 1st query
+        db.pool.query(queryUpdate, [teamID, volunteer], 
+        function(error, rows, fields){
+            if(error){
+                // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+                console.log(error);
+                res.sendStatus(400);
+            }
+            else{
+                res.send(rows);
+            }
+        })
+
+    }
+
+    else{
+
+        if(teamID === 0){
+            queryUpdate = `UPDATE Volunteers SET Volunteers.details = ? WHERE Volunteers.volunteerID = ?;`;
+
+            db.pool.query(queryUpdate, [details, volunteer], 
+                function(error, rows, fields){
+                    if(error){
+                        // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+                        console.log(error);
+                        res.sendStatus(400);
+                    }
+                    else{
+                        res.send(rows);
+                    }
+                })
+
+        }
+
+        else{
+
+            queryUpdate = `UPDATE Volunteers SET Volunteers.teamID = ?, Volunteers.details = ? WHERE Volunteers.volunteerID = ?;`;
+
+                db.pool.query(queryUpdate, [teamID, details, volunteer], 
+                function(error, rows, fields){
+                    if(error){
+                        // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+                        console.log(error);
+                        res.sendStatus(400);
+                    }
+                    else{
+                        res.send(rows);
+                    }
+                })
+        }    
+    }
+});
+
+app.put('/putVolunteerDetails', function(req,res,next){
+    let data = req.body;
+    let volunteer = parseInt(data.volunteers);
+    let details = data.details;
+
+    let queryUpdate
+    if(details === NULL){
+    
+        queryUpdate = `UPDATE Volunteers SET Volunteers.teamID = ? WHERE Volunteers.volunteerID = ?;`;
+
+        // Run the 1st query
+        db.pool.query(queryUpdate, [teamID, volunteer], 
+        function(error, rows, fields){
+            if(error){
+                // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+                console.log(error);
+                res.sendStatus(400);
+            }
+            else{
+                res.send(rows);
+            }
+        })
+
+    }
+
+    else{
+    queryUpdate = `UPDATE Volunteers SET Volunteers.teamID = ?, Volunteers.details = ? WHERE Volunteers.volunteerID = ?;`;
+
+        db.pool.query(queryUpdate, [teamID, volunteer], 
+            function(error, rows, fields){
+                if(error){
+                    // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+                    console.log(error);
+                    res.sendStatus(400);
+                }
+                else{
+                    res.send(rows);
+                }
+            })
+    }
+
+
+    
+    
+});
+
 // DELETE
 app.delete("/deleteVolunteer", function(req,res,next){
     let data = req.body;
-    let playerID = parseInt(data.volunteerID);
+    let volunteerID = parseInt(data.volunteerID);
     let query1 = `DELETE FROM Volunteers WHERE volunteerID = '${volunteerID}'`;
 
     // Run the 1st query
@@ -898,36 +1138,12 @@ app.delete("/deleteVolunteer", function(req,res,next){
 
 // GET
 app.get("/games", function(req, res) {
-    let query1 = `SELECT * FROM Games;`;
+    let query1 = `SELECT gameID, DATE_FORMAT(Games.dateTime, '%Y-%m-%d %r') as dateTime, homeScore, awayScore, fieldNumber, homeTeamID, awayTeamID, refereeID FROM Games;`;
 
     db.pool.query(query1, function(error, rows, fields) {
         let games = rows;
         return res.render('games', {data: games})
     })
-    // let query1;
-    // if () {
-    //     query1 = ;
-    // }
-    // else {
-    //     query1 = ;
-    // }
-
-    // let query2 = ;
-    // let query3 = ;
-
-    // db.pool.query(query1, function(error, rows, fields) {
-    //     let games = rows;
-
-    //     db.pool.query(query2, (error, rows, fields)=> {
-    //         let placeholder = rows;
-
-    //         db.pool.query(query3, (error, rows, fields)=> {
-    //             let Placeholder = rows;
-
-    //             return res.render('games', {data: games, placeholder: placeholder, Placeholder: Placeholder})
-    //         })
-    //     })
-    // })
 })
 
 // POST
@@ -936,11 +1152,6 @@ app.post("/addGame", function(req, res) {
     let data = req.body;
     
     // Capture NULL values
-    let dateTime = parseInt(data.dateTime);
-    if (isNaN(dateTime)) {
-        dateTime = 'NULL'
-    }
-
     let homeScore = parseInt(data.homeScore);
     if (isNaN(homeScore)) {
         homeScore = 'NULL'
@@ -973,8 +1184,8 @@ app.post("/addGame", function(req, res) {
 
     // Create the query and run it on the database
     query1 = `INSERT INTO Games(dateTime, homeScore, awayScore, fieldNumber, homeTeamID, awayTeamID, refereeID)
-    VALUES ('${data.dateTime}', '${data.homeScore}', '${data.awayScore}', '${data.fieldNumber}', 
-    '${data.homeTeamID}', '${data.awayTeamID}', '${data.refereeID}');`
+    VALUES ('${data.dateTime}', '${homeScore}', '${awayScore}', '${fieldNumber}', 
+    '${homeTeamID}', '${awayTeamID}', '${refereeID}');`
 
     db.pool.query(query1, function(error, rows, fields){
         // Check to see if there was an error
@@ -1004,11 +1215,13 @@ app.post("/addGame", function(req, res) {
     })
 });
 
+
+
 // PUT
 app.put("/updateGame", function(req,res,next){
     let data = req.body;
     let gameID = parseInt(data.gameID);
-    let dateTime = parseInt(data.dateTime);
+    let dateTime = data.dateTime;
     let homeScore = parseInt(data.homeScore);
     let awayScore = parseInt(data.awayScore);
     let fieldNumber = parseInt(data.fieldNumber);
@@ -1016,14 +1229,43 @@ app.put("/updateGame", function(req,res,next){
     let awayTeamID = parseInt(data.awayTeamID);
     let refereeID = parseInt(data.refereeID);
     
-    let query1 = `UPDATE Games SET dateTime = ${dateTime}, SET homeScore = ${homeScore}, SET awayScore = ${awayScore}, SET fieldNumber = ${fieldNumber}, \
-    SET homeTeamID = ${homeTeamID}, SET awayTeamID = ${awayTeamID}, SET refereeID = ${refereeID} \
-    WHERE Games.gameID = ${gameID};`;
-    let query2 = `SELECT * FROM Games WHERE gameID = ${gameID};`;
+    // Capture NULL values
+    if (dateTime === '') {
+        dateTime = ''
+    }
+
+    if (isNaN(homeScore)) {
+        homeScore = 'NULL'
+    }
+
+    if (isNaN(awayScore)) {
+        awayScore = 'NULL'
+    }
+
+    if (isNaN(fieldNumber)) {
+        fieldNumber = 'NULL'
+    }
+
+    if (isNaN(homeTeamID)) {
+        homeTeamID = 'NULL'
+    }
+
+    if (isNaN(awayTeamID)) {
+        awayTeamID = 'NULL'
+    }
+
+    if (isNaN(refereeID)) {
+        refereeID = 'NULL'
+    }
+
+    let query1 = `UPDATE Games SET dateTime = '${dateTime}', homeScore = '${homeScore}', awayScore = '${awayScore}', fieldNumber = '${fieldNumber}', \
+    homeTeamID = '${homeTeamID}', awayTeamID = '${awayTeamID}', refereeID = '${refereeID}' \
+    WHERE Games.gameID = '${gameID}';`;
+    let query2 = `SELECT * FROM Games WHERE gameID = '${gameID}';`;
 
 
     // Run the 1st query
-    db.pool.query(query1, [placeholder, placeholder2], function(error, rows, fields){
+    db.pool.query(query1, function(error, rows, fields){
         if (error){
         // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
         console.log(error);
@@ -1032,13 +1274,13 @@ app.put("/updateGame", function(req,res,next){
     
         else{
             // Run the second query
-            db.pool.query(query2, [placeholder], function(error, rows, fields) {
+            db.pool.query(query2, function(error, rows, fields) {
             
                 if (error){
                     console.log(error);
                     res.sendStatus(400);
                 } 
-                               
+                
                 else{
                     res.send(rows);
                 }
@@ -1047,11 +1289,12 @@ app.put("/updateGame", function(req,res,next){
     })
 });
 
+
 // DELETE
 app.delete("/deleteGame", function(req,res,next){
     let data = req.body;
     let gameID = parseInt(data.gameID);
-    let query1 = `DELETE FROM Games WHERE gameID = ${gameID}`;
+    let query1 = `DELETE FROM Games WHERE gameID = '${gameID}'`;
 
     // Run the 1st query
     db.pool.query(query1, [gameID], function(error, rows, fields){
@@ -1060,7 +1303,11 @@ app.delete("/deleteGame", function(req,res,next){
         console.log(error);
         res.sendStatus(400);
         }
-  })});
+        else{
+            res.sendStatus(204);
+        }
+  })
+});
 
 
 

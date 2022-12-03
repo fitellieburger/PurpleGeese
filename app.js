@@ -42,7 +42,7 @@ app.get('/', function(req, res){
 app.get('/seasons', function(req, res){
     let query1;
     if(req.query.divisionID === undefined){
-        query1 = "SELECT  Seasons.seasonID, Seasons.description AS 'Season', CAST(startDate AS varchar(10)) AS 'StartDate',\
+        query1 = "SELECT  Seasons.seasonID AS '_', Seasons.description AS 'Season', CAST(startDate AS varchar(10)) AS 'StartDate',\
         CAST(endDate AS varchar(10)) AS 'EndDate', seasonFee AS 'Fee' FROM Seasons\
        LEFT JOIN SeasonsDivisions on Seasons.seasonID = SeasonsDivisions.seasonID\
        LEFT JOIN Divisions on SeasonsDivisions.divisionID = Divisions.divisionID\
@@ -50,7 +50,7 @@ app.get('/seasons', function(req, res){
         ;";
 }
     else{
-        query1 = `SELECT  Seasons.seasonID, Seasons.description AS 'Season', CAST(startDate AS varchar(10)) AS 'StartDate',\
+        query1 = `SELECT  Seasons.seasonID AS '_', Seasons.description AS 'Season', CAST(startDate AS varchar(10)) AS 'StartDate',\
          CAST(endDate AS varchar(10)) AS 'EndDate', seasonFee AS 'Fee' FROM Seasons\
         INNER JOIN SeasonsDivisions on Seasons.seasonID = SeasonsDivisions.seasonID\
         INNER JOIN Divisions on SeasonsDivisions.divisionID = Divisions.divisionID\
@@ -63,7 +63,7 @@ app.get('/seasons', function(req, res){
                     FROM Seasons \
                     ORDER BY endDate DESC;";
 
-        let query3 = "SELECT * FROM Divisions;";
+        let query3 = "SELECT * FROM Divisions ORDER BY maxAge;";
 
         db.pool.query(query1, function(error, rows, fields){
             let data = rows;
@@ -82,11 +82,16 @@ app.get('/seasons', function(req, res){
     });     
 
 // POST
-app.post('/add-season-form', function(req, res){
+app.post('/addSeason', function(req, res){
     // Capture the incoming data and parse it back to a JS object
     let data = req.body;
+    //parse int and array
+    let seasonFee = parseInt(data.fee);
+    let divArray  = JSON.parse(data.selectedDivisions);
 
-    let seasonFee = parseInt(data['input-fee']);
+    console.log(data.divisions);
+    console.log(divArray);
+
     if (isNaN(seasonFee))
     {
         seasonFee = 'NULL'
@@ -94,9 +99,10 @@ app.post('/add-season-form', function(req, res){
 
     // Create the query and run it on the database
     let query1 = `INSERT INTO Seasons (description, startDate, endDate, seasonFee)\
-     VALUES ('${data['input-desc']}', '${data['input-startDate']}', '${data['input-endDate']}', ${seasonFee})\
-     ;`
-    ;
+     VALUES ('${data.description}', '${data.startDate}', '${data.endDate}', ${seasonFee})\
+     ;`;
+
+    
     db.pool.query(query1, function(error, rows, fields){
 
         // Check to see if there was an error
@@ -111,10 +117,17 @@ app.post('/add-season-form', function(req, res){
         // presents it on the screen
         else
         {
-            res.redirect('/seasons');
+            
+                    
+            res.send(rows);
+                    
+
         }
-    })  
-    })
+            })
+                
+                        
+    })            
+        
 
 // DELETE
 app.delete("/deleteSeason", function(req,res,next){
@@ -137,7 +150,8 @@ app.delete("/deleteSeason", function(req,res,next){
 
 // GET 
 app.get("/divisions", function(req, res) {
-    let query1 = `SELECT * FROM Divisions;`;
+    let query1 = `SELECT * FROM Divisions
+    ORDER BY maxAge DESC;`;
 
     db.pool.query(query1, function(error, rows, fields) {
         let divisions = rows;
@@ -312,6 +326,7 @@ db.pool.query(query1, function(error, rows, fields){
 })
 });
 
+// DELETE
 app.delete("/deleteDivision", function(req,res,next){
     let data = req.body;
     let divisionID = parseInt(data.divisionID);
@@ -442,22 +457,22 @@ app.get('/teams', function(req, res){
     let query1;
     if(req.query.name === undefined){
         query1 = "SELECT Teams.teamID, Teams.name, Teams.mascot, \
-        Divisions.description as 'teamDivisionID', concat(Adults.firstName, \
-        ' ', Adults.lastName) as 'headCoachID' FROM Teams \
+        Divisions.description as 'teamDivision', concat(Adults.firstName, \
+        ' ', Adults.lastName) as 'headCoach', COUNT(Players.playerID) AS numPlayers FROM Teams \
         INNER JOIN Volunteers ON Teams.headCoachID = Volunteers.volunteerID \
         INNER JOIN Adults ON Volunteers.adultID = Adults.adultID \
         LEFT JOIN Divisions ON Teams.teamDivisionID = Divisions.divisionID \
-        ORDER BY Teams.teamID;";
+        ORDER BY Teams.name;";
 }
     else{
         query1 = `SELECT Teams.teamID, Teams.name, Teams.mascot, 
-        Divisions.description as 'teamDivisionID', concat(Adults.firstName, 
-        ' ', Adults.lastName) as 'headCoachID' FROM Teams 
+        Divisions.description as 'teamDivision', concat(Adults.firstName, 
+        ' ', Adults.lastName) as 'headCoach', COUNT(Players.playerID) AS numPlayers FROM Teams 
         INNER JOIN Volunteers ON Teams.headCoachID = Volunteers.volunteerID 
         INNER JOIN Adults ON Volunteers.adultID = Adults.adultID 
         LEFT JOIN Divisions ON Teams.teamDivisionID = Divisions.divisionID 
         WHERE Teams.name LIKE "%${req.query.name}%"
-        ORDER BY Teams.teamID` 
+        ORDER BY Teams.name;` 
     }
 
         let query2 = "SELECT volunteerID, concat(Adults.firstName,' ' ,\
@@ -622,7 +637,8 @@ app.delete('/deleteTeamAjax/', function(req,res,next){
 
 // GET
 app.get("/adults", function(req, res) {
-    let query1 = `SELECT * FROM Adults;`;
+    let query1 = `SELECT * FROM Adults
+                    ORDER BY Adults.lastName, Adults.firstName ASC;`;
 
     db.pool.query(query1, function(error, rows, fields) {
         let adults = rows;
@@ -712,7 +728,8 @@ app.put("/updateAdult", function(req,res,next){
     let query1 = `UPDATE Adults SET firstName = '${firstName}', lastName = '${lastName}', phone = '${phone}', email = '${email}', \
     isGuardian = '${isGuardian}', connectedAdultID = '${connectedAdultID}' \
     WHERE Adults.adultID = '${adultID}';`;
-    let query2 = `SELECT * FROM Adults WHERE adultID = '${adultID}';`;
+    let query2 = `SELECT * FROM Adults WHERE adultID = '${adultID}
+                    ORDER BY lastName, firstName ASC';`;
 
 
     // Run the 1st query
@@ -825,6 +842,49 @@ app.get('/players', function(req, res){
     });     
 
 // POST
+app.post('/insertPlayerAjax', function(req, res){
+    // Capture the incoming data and parse it back to a JS object
+    let data = req.body;
+
+    // Capture NULL values
+    let primaryAdultID = parseInt(data['primaryAdultID']);
+    if (isNaN(primaryAdultID)){
+        primaryAdultID = 'NULL';
+    }
+
+    let teamID = parseInt(data['teamID']);
+    if (isNaN(teamID)){
+        teamID = 'NULL';
+    }
+
+    // Create the query and run it on the database
+    query1 = `INSERT INTO Players (firstName, lastName, Gender, DOB, primaryAdultID, playerTeamID)
+    VALUES ('${data['firstName']}', '${data['lastName']}', '${data['Gender']}', '${data['DOB']}', '${primaryAdultID}', '${teamID}')`;
+    db.pool.query(query1, function(error, rows, fields){
+        // Check to see if there was an error
+        if(error){
+            // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+            console.log(error);
+            res.sendStatus(400);
+        }
+        else{
+            query2 = `SELECT Players.playerID, Players.firstName, Players.lastName, Players.Gender, CAST(Players.DOB AS varchar(10)) AS 'DOB',  CONCAT(Adults.firstName, ' ', Adults.lastName) as 'primaryAdultID', Teams.name AS 'playerTeamID' FROM Players
+            INNER JOIN Adults ON Players.primaryAdultID = Adults.adultID
+            LEFT JOIN Teams ON Players.playerTeamID = Teams.teamID
+            ORDER BY Players.playerID`;
+            db.pool.query(query2, function(error, rows, fields){
+                if (error){
+                    console.log(error);
+                    res.sendStatus(400);
+                }
+                else{
+                    res.send(rows);
+                }
+            })
+        }
+    })
+});
+
 
 // PUT
 app.put('/putPlayer', function(req,res,next){
@@ -936,6 +996,62 @@ app.get('/volunteers', function(req, res){
     });     
 
 // POST
+app.post('/insertVolunteerAjax', function(req, res){
+    // Capture the incoming data and parse it back to a JS object
+    let data = req.body;
+
+    // Capture NULL values
+    let connectedAdultID = parseInt(data['connectedAdultID']);
+    if (isNaN(connectedAdultID)){
+        connectedAdultID = 'NULL'
+    }
+
+    let isGuardian = parseInt(data['isGuardian']);
+    if (isNaN(isGuardian)){
+        isGuardian = 'NULL'
+    }
+
+    // Create the query and run it on the database
+    query1 = `INSERT INTO Adults (firstName, lastName, phone, email, isGuardian, connectedAdultID)
+    VALUES ('${data['firstName']}', '${data['lastName']}', '${data['phone']}', '${data['email']}', ${isGuardian}, ${connectedAdultID})`;
+    db.pool.query(query1, function(error, rows, fields){
+        // Check to see if there was an error
+        if(error){
+            // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+            console.log(error);
+            res.sendStatus(400);
+        }
+        else{
+        // If joining as a volunteer
+            query2 = `SELECT MAX(adultID) as adultID FROM Adults`;
+            db.pool.query(query2, function(error, row, fields){
+                if (error){
+                    console.log(error);
+                    res.sendStatus(400);
+                } 
+                else{
+                    let parseAdultID = parseInt(row[0].adultID);
+                    query3 = `INSERT INTO Volunteers (role, details, adultID)
+                    VALUES ('${data['volunteerRole']}', '${data['volunteerDetails']}', ${parseAdultID})`;
+                    db.pool.query(query3, function(error, rows, fields){
+                        // If there was an error on the second query, send a 400
+                        if (error){
+                            console.log(error);
+                            res.sendStatus(400);
+                        }
+                        // If all went well, send the results of the query back.
+                        else{
+                            console.log('volunteer adultID = ', parseAdultID);
+                            res.sendStatus(200);
+                        }            
+                    })
+                }
+            })
+        }
+    })
+});
+
+
 app.post('/addVolunteerTeam', function(req, res){
     // Capture the incoming data and parse it back to a JS object
     let data = req.body;
@@ -1138,7 +1254,8 @@ app.delete("/deleteVolunteer", function(req,res,next){
 
 // GET
 app.get("/games", function(req, res) {
-    let query1 = `SELECT gameID, DATE_FORMAT(Games.dateTime, '%Y-%m-%d %r') as dateTime, homeScore, awayScore, fieldNumber, homeTeamID, awayTeamID, refereeID FROM Games;`;
+    let query1 = `SELECT gameID, DATE_FORMAT(Games.dateTime, '%Y-%m-%d %r') as dateTime, homeScore, awayScore, \
+    fieldNumber, homeTeamID, awayTeamID, refereeID FROM Games;`;
 
     db.pool.query(query1, function(error, rows, fields) {
         let games = rows;
@@ -1215,8 +1332,6 @@ app.post("/addGame", function(req, res) {
     })
 });
 
-
-
 // PUT
 app.put("/updateGame", function(req,res,next){
     let data = req.body;
@@ -1289,7 +1404,6 @@ app.put("/updateGame", function(req,res,next){
     })
 });
 
-
 // DELETE
 app.delete("/deleteGame", function(req,res,next){
     let data = req.body;
@@ -1309,11 +1423,210 @@ app.delete("/deleteGame", function(req,res,next){
   })
 });
 
+/*
+    ORDERS ROUTES
+*/
 
+// GET
+app.get('/orders', (req, res) => {
+    let query1;
+    query1 = `SELECT * FROM Adults 
+    ORDER BY Adults.lastName, Adults.firstName`;
+
+    let query2;
+    query2 = `SELECT Players.playerID, Players.firstName, Players.lastName, Players.Gender,  DATE_FORMAT(Players.DOB, '%Y-%m-%d') as DOB, CONCAT(Adults.firstName, ' ', Adults.lastName) AS primaryAdultID, Teams.name AS playerTeamID FROM Players
+    INNER JOIN Adults ON Players.primaryAdultID = Adults.adultID
+    LEFT JOIN Teams ON Players.playerTeamID = Teams.teamID
+    ORDER BY Players.lastName, Players.firstName`;
+
+    let query3;
+    query3 = `SELECT * FROM Adults 
+    ORDER BY Adults.lastName, Adults.firstName`;
+
+    let query4 = `SELECT Adults.adultID, CONCAT(Adults.firstName, ' ', Adults.lastName) as adultName FROM Adults
+    ORDER BY Adults.lastName, Adults.firstName`
+
+    let query5 = `SELECT Teams.teamID, Teams.name FROM Teams
+    ORDER BY Teams.name`
+
+    let query6 = `SELECT SeasonsDivisions.seasonDivisionID, SeasonsDivisions.description FROM SeasonsDivisions
+    ORDER BY SeasonsDivisions.description ASC`
+
+    db.pool.query(query1, function(error, rows, fields){
+        let adults = rows;
+        db.pool.query(query2, (error, rows, fields) => {
+            let players = rows;
+            db.pool.query(query3,(error, rows, fields) =>{
+                let volunteers = rows;
+                db.pool.query(query4,(error, rows, fields) =>{
+                    let primaryAdults = rows;
+                    db.pool.query(query5, (error, rows, fields) =>{
+                        let teams = rows;
+                        db.pool.query(query6, (error, rows, fields)=>{
+                            let divisions = rows;
+                            return res.render('orders', {data: adults, players: players, 
+                                volunteers: volunteers, primaryAdults: primaryAdults, teams: teams, divisions: divisions});
+                        }) 
+                    })
+                })
+            })
+        })
+    })
+});
+
+// POST
+app.post('/insertAdultAjax', function(req, res){
+    // Capture the incoming data and parse it back to a JS object
+    let data = req.body;
+    // Capture NULL values
+
+    let connectedAdultID = parseInt(data['connectedAdultID']);
+    if (isNaN(connectedAdultID)){
+        connectedAdultID = 'NULL'
+    }
+
+    let isGuardian = parseInt(data['isGuardian']);
+    if (isNaN(isGuardian)){
+        isGuardian = 'NULL'
+    }
+
+    // Create the query and run it on the database
+    query1 = `INSERT INTO Adults (firstName, lastName, phone, email, isGuardian, connectedAdultID)
+    VALUES ('${data['firstName']}', '${data['lastName']}', '${data['phone']}', '${data['email']}', ${isGuardian}, ${connectedAdultID});`;
+    db.pool.query(query1, function(error, rows, fields){
+        // Check to see if there was an error
+        if(error){
+            // Log the error to the terminal and send an HTTP response 400 indicating it was a bad request.
+            console.log(error);
+            res.sendStatus(400);
+        }
+        else{
+        // If joining as a volunteer
+            query2 = `SELECT MAX(adultID) as adultID FROM Adults;`;
+            db.pool.query(query2, function(error, row, fields){
+                if (error){
+                    console.log(error);
+                    res.sendStatus(400);
+                } 
+                else{
+                    let parseAdultID = parseInt(row[0].adultID);
+                    if (data.isVolunteer === true){
+                        query3 = `INSERT INTO Volunteers (role, details, adultID)
+                        VALUES ('${data['volunteerRole']}', '${data['volunteerDetails']}', ${parseAdultID});`;
+                        db.pool.query(query3, function(error, rows, fields){
+                        // If there was an error on the second query, send a 400
+                        if (error){
+                            console.log(error);
+                            res.sendStatus(400);
+                            }
+                        else{
+                            console.log('volunteer adultID = ', parseAdultID);
+                            //res.sendStatus(parseAdultID);
+                            res.send(row);
+                        }            
+                        // If all went well, send the results of the query back.
+                        })
+                    }
+                    else{
+                        console.log('not volunteer adultID = ', parseAdultID);
+                        //res.sendStatus(row[0].adultID);
+                        //res.sendStatus(200);
+                        res.send(row[0]);
+                    }
+                }
+            })
+        }
+    })
+});
+
+app.post('/insertOrderAjax', function(req, res){
+    // Capture the incoming data and parse it back to a JS object
+    let data = req.body;
+
+
+            query1 = `INSERT INTO Orders (orderDate, orderTotal, orderDetails, registeringAdultID)
+            Values ('${data.orderDate}', ${data.orderTotal}, '${data.orderDetails}', '${data.orderAdultID}')`;
+            db.pool.query(query1, function(error, rows, fields){
+                if(error){
+                    console.log(error);
+                    res.sendStatus(400);
+                }
+                else{
+                    query2 = `SELECT MAX(orderID) as orderID FROM Orders`;
+                    db.pool.query(query2, function(error, row, fields){
+                        if (error){
+                            console.log(error);
+                            res.sendStatus(400);
+                        }
+                        else{
+                            let parseOrderID = parseInt(row[0].orderID);
+                            let parseFormDivsion = parseInt(data['formDivision'])
+                            query3 = `INSERT INTO Forms (formDetails, orderID, seasonDivisionID, registeredPlayerID, registeredAdultID)
+                                      VALUES('${data.formDetails}', ${parseOrderID}, ${parseFormDivsion}, '${data.orderPlayerID}', '${data.orderVolunteerID}')`;
+                            db.pool.query(query3, function(error, rows, fields){
+                                if (error){
+                                    console.log(error);
+                                    res.sendStatus(400);
+                                }
+                                else{
+                                    // No table to update so just send back success status
+                                    res.sendStatus(200);
+                                }
+                            })
+                        }
+                    })
+                }
+          
+    })        
+});
+
+/*
+    ORDER HISTORY ROUTES
+*/
+
+// GET
+app.get('/orderhistory', (req, res) => {
+    let query1;
+    if (req.query.name === undefined) {
+        query1 = "SELECT Orders.orderID, DATE_FORMAT(Orders.orderDate, '%Y-%m-%d') \
+        AS orderDate, Orders.orderTotal, Orders.orderDetails, concat(Adults.firstName, ' ', Adults.lastName) AS 'registeringAdultID' FROM Orders \
+        INNER JOIN Adults ON Adults.adultID = Orders.registeringAdultID";
+    }
+    db.pool.query(query1, function(error, rows, fields){
+        let orderhistory = rows;
+        return res.render('orderhistory', {data: orderhistory});
+    })
+});
+
+/*
+    FORMS ROUTES
+*/
+
+// GET
+app.get('/forms', (req, res) => {
+    let query1;
+    if (req.query.name === undefined) {
+        query1 = "SELECT Forms.formID, Forms.formDetails, Forms.orderID, \
+        concat(Seasons.description, ' ', Divisions.description) as 'division', \
+        concat(Players.firstName, ' ', Players.lastName) as 'player', \
+        concat(Adults.firstName, ' ', Adults.lastName) as 'adult'  FROM Forms \
+        INNER JOIN SeasonsDivisions ON Forms.seasonDivisionID = SeasonsDivisions.seasonDivisionID \
+        INNER JOIN Seasons ON SeasonsDivisions.seasonID = Seasons.seasonID \
+        INNER JOIN Divisions ON SeasonsDivisions.divisionID = Divisions.divisionID \
+        LEFT JOIN Players ON Forms.registeredPlayerID = Players.playerID \
+        LEFT JOIN Adults ON Forms.registeredAdultID = Adults.adultID \
+        ORDER BY Forms.formID;";
+    }
+
+    db.pool.query(query1, function(error, rows, fields){
+        let forms = rows;
+        return res.render('forms', {data: forms});
+    })
+});
 
 
 /*
-    LISTENER - mcdonem2
+    LISTENER 
 */
 
 app.listen(PORT, function(){         

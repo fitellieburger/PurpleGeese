@@ -1,0 +1,112 @@
+<!--
+    Page and .js by Danielle Burger
+
+    Citation for the code turned in for CS 340 Step 4
+    Date: 11/10/2022
+    Adapted fromNode Starter App
+    Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+
+<head>
+<title>Players</title>
+</head>
+<body>
+
+
+<h1>Players</h1>
+<h2>Browse or Update Players</h2>
+
+<!-- insert -->
+<legend><strong><a href= '/orders'><button>Register a player on the Orders page</button></a></strong></legend>
+<br/>
+<!-- /insert -->
+
+<div id="searchByDivision">
+  <form id="searchByDivision" method="GET" action='/players'>
+      <legend><strong>See Players By Division</strong></legend>
+          <label>Choose Division</label>
+          <select name="divisionID" id="searchDivision">
+                <option value="">Select a Division</option>
+                {{#each divisions}}
+                <option value="{{this.divisionID}}">{{this.description}}</option>
+                {{/each}}
+            </select>
+      <button type="submit">Find Players</button>
+      <a href='/players'><button>Reset</button></a>
+  </form>
+</div
+><!-- /search -->
+<br/>
+
+<!-- update -->
+<form id="updatePlayerhtml">
+<div id ="updatePlayerTeam">
+
+<legend><strong>Select Players to Assign to a Team</strong></legend>
+          <label>Choose Team</label>
+          <select id="teamUpdate" border="1" cellpadding="5">
+                <option value="NULL">No Team</option>
+                {{#each teams}}
+                <option value="{{this.teamID}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+    <button type="submit" 
+       >Update Player Team</button>
+</div>
+<!-- update includes multiselect in table -->
+
+
+<br/>
+<div id="browse">  
+   <table id="playerTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+                
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               
+               {{/each}}  
+               
+           </tr>  
+       </thead>  
+         
+       <tbody id="eachPlayer">  
+           {{#each data}}  
+            <!-- volunteerID = 'Select', to simplify readability for user -->
+
+           <tr data-value={{this.Select}} id="tableRow">  
+                <td><input type="checkbox" id="{{this.Select}}" name="update" value="{{this.Select}}"></td>
+               <td>{{this.RecentSeason}}</td>  
+               <td>{{this.Division}}</td>  
+               <td>{{this.RecentTeam}}</td>  
+               <td>{{this.PlayerName}}</td>  
+               <td>{{this.Gender}}</td>  
+               <td>{{this.DOB}}</td> 
+               <td>{{this.Guardian}}</td> 
+               <td>{{this.ContactPhone}}</td> 
+               <td>{{this.ContactEmail}}</td> 
+                <td><button type="button" onclick="deletePlayer({{this.Select}})">Delete</button></td>
+
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>
+   <!-- delete js -->  
+   <script src="./js/players/delete_player.js"></script>
+   
+</div> 
+<input name="SelectedValues" type="hidden" value=""> 
+</form>
+<p>&nbsp;</p> 
+
+
+</div><!-- update js -->
+<script src="./js/players/update_player.js"></script>
+
+<p>&nbsp;</p> 
+
+
+
+ </body>

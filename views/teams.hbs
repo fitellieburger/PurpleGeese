@@ -1,0 +1,114 @@
+<!--
+    Citation for the code turned in for CS 340 Step 4
+    Date: 11/10/2022
+    Adapted fromNode Starter App
+    Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+
+<head>
+<title>Teams</title>
+</head>
+<body>
+
+<h1>Teams</h1>
+<h2>Browse, Add or Update Teams</h2>
+<legend><strong><a href="#addTeam"><button>Add a Team Below</button></a></strong></legend>
+<br/>
+
+<div id="searchByTeamName">
+  <form id="searchTeam" method="GET" action='/teams'>
+      <legend><strong>Search for a Team</strong></legend>
+          <label>Team's Name </label>
+          <input type="text" name="name" id="inputNameSearch"
+      <button type="submit">Find Team</button>
+      <a href='/teams'><button>Reset</button></a>
+  </form>
+</div><!-- search -->
+
+<br/>
+
+<legend><strong>Update a Team Mascot</strong></legend>
+<div id="updateTeam">
+    <form id="updateTeamAjax">
+        <label for="inputName">Team Name: </label>
+        <select name="inputNameUpdate" id="inputNameUpdate">
+            <option value="test">Select a Team</option>
+            {{#each data}}
+            <option value="{{this.teamID}}">{{this.name}}</option>
+            {{/each}}
+        </select>
+
+        <label for="inputMascot">Mascot: </label>
+        <input type="text" name="inputMascotUpdate" id="inputMascotUpdate">
+        <input type="submit" value="Update Team">
+    </form>
+</div><!-- update -->
+
+<script src="./js/teams/update_team.js"></script>
+<br/>
+
+<div id="browse">  
+   <table id="teamTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.teamID}}>  
+               <td>{{this.teamID}}</td>  
+               <td>{{this.name}}</td>  
+               <td>{{this.mascot}}</td>  
+               <td>{{this.teamDivision}}</td>  
+               <td>{{this.headCoach}}</td>  
+               <td><button onclick="deleteTeam({{this.teamID}})">Delete</button></td>
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+   <script src="./js/teams/delete_team.js"></script>
+</div>  
+
+<p>&nbsp;</p> 
+
+  
+<div id="insertTeam">
+    <form id="insertTeamAjax">
+        <legend><strong><a id="addTeam">Add a New Team</a></strong></legend>
+        <fieldset class="fields">
+            <label for="inputName"> Team Name </label>
+            <input type="text" name="inputName" id="inputName">
+
+            <label for="inputMascot"> Mascot </label> 
+            <input type="text" name="inputMascot" id="inputMascot">
+
+            <select name="inputTeamDivisionID" id="inputTeamDivisionID">
+                <option value=""> Select a Division </option>
+                {{#each divisions}}
+                <option value="{{this.divisionID}}">{{this.description}}</option>
+                {{/each}}
+            </select>
+            <select name="inputHeadCoachID" id="inputHeadCoachID">
+                <option value=""> Select a Coach </option>
+                {{#each volunteers}}
+                <option value="{{this.volunteerID}}">{{this.coach}}</option>
+                {{/each}}
+            </select>
+            <input type="submit" value="Add Team">
+        </fieldset>
+    </form> 
+</div><!-- insert -->
+
+<script src="./js/teams/add_team.js"></script>
+
+<p>&nbsp;</p> 
+
+
+
+ </body>

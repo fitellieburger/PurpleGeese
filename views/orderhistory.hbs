@@ -1,0 +1,36 @@
+<!-- Page developed by Michael McDonell -->
+
+<head>
+<title>Order History</title>
+</head>
+<h1> Order History</h1>
+<h2>Browse Orders</h2>
+<legend><strong><a href='orders'><button>Register a Player or Volunteer on the Orders Page</button></a></strong></legend>
+<br/>
+
+
+<div id="browse">  
+   <table id="ordersTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.orderID}}>  
+               <td>{{this.orderID}}</td>
+               <td>{{this.orderDate}}</td>  
+               <td>${{this.orderTotal}}</td>  
+               <td>{{this.orderDetails}}</td>  
+               <td>{{this.registeringAdultID}}</td>  
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+</div>  

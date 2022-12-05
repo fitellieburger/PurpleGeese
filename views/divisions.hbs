@@ -1,0 +1,132 @@
+<!--
+    Page and .js developed by Alwin Nocom
+
+    Citation for the code turned in for CS 340 Step 5
+    Date: 11/16/2022
+    Adapted from Michael McDonell's adaptation of the Node Starter App
+    Node Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+
+<head>
+<title>Divisions</title>
+</head>
+
+<h1>Divisions</h1>
+<h2>Browse or Update Divisions</h2>
+<legend><strong><a href="#addDivision"><button>Add a Division Below</button></a></strong></legend>
+<br/>
+
+<legend><strong>Update Division Details</strong></legend>
+
+<div id="updateDivision">
+    <form id="updateDivisionAjax">
+        <label for="updateInfo">Division to Update: </label>
+        <select name="inputNameUpdate" id="inputNameUpdate">
+            {{#each data}}
+            <option id="divisionID" value="{{this.divisionID}}">{{this.description}}</option>
+            {{/each}}
+        </select>
+            <label for="updateDescription">Description</label>
+            <input type="text" name="updateDescription" id="updateDescription">
+
+            <label for="updateMinAge">Minimum Age requirement</label>
+            <input type="number" name="updateMinAge" id="updateMinAge">
+
+            <label for="updateMaxAge">Maximum Age requirement</label>
+            <input type="number" name="updateMaxAge" id="updateMaxAge">
+
+            <label for="updateGender">Gender</label>
+            <input type="text" name="updateGender" id="updateGender">
+
+            <label for="updateMinPlayers">Minimum Players required</label>
+            <input type="number" name="updateMinPlayers" id="updateMinPlayers">
+
+            <label for="updateMaxPlayers">Maximum Players required</label>
+            <input type="number" name="updateMaxPlayers" id="updateMaxPlayers">
+
+            <label for="updateBallSize">Ball Size</label>
+            <input type="text" name="updateBallSize" id="updateBallSize">
+
+            <label for="updateNetSize">Net Size</label>
+            <input type="text" name="updateNetSize" id="updateNetSize">
+        <input type="submit">
+    </form>
+</div><!-- update -->
+
+<script src="./js/divisions/update_division.js"></script>
+</br>
+<div id="browse">  
+   <table id="divisionTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.divisionID}}>  
+               <td>{{this.divisionID}}</td>  
+               <td>{{this.description}}</td>
+               <td>{{this.minAge}}</td>  
+               <td>{{this.maxAge}}</td>  
+               <td>{{this.gender}}</td>
+               <td>{{this.minPlayers}}</td> 
+               <td>{{this.maxPlayers}}</td>
+               <td>{{this.ballSize}}</td> 
+               <td>{{this.netSize}}</td>  
+               <td><button onclick="deleteDivision({{this.divisionID}})">Delete</button></td>
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+   <script src="./js/divisions/delete_division.js"></script>
+</div>  
+
+<p>&nbsp;</p> 
+
+  
+<div id="insertDivision">
+    <form id="insertDivisionAjax">
+        <legend><strong><a id="addDivision">Add Division</a></strong></legend>
+        <fieldset class="fields">
+            <label for="inputDescription">Description</label>
+            <input type="text" name="inputDescription" id="inputDescription">
+
+            <label for="inputMinAge">Minimum Age requirement</label>
+            <input type="text" name="inputMinAge" id="inputMinAge">
+
+            <label for="inputMaxAge">Maximum Age requirement</label>
+            <input type="text" name="inputMaxAge" id="inputMaxAge">
+
+            <label for="inputGender">Gender</label>
+            <input type="text" name="inputGender" id="inputGender">
+
+            <label for="inputMinPlayers">Minimum Players required</label>
+            <input type="text" name="inputMinPlayers" id="inputMinPlayers">
+
+            <label for="inputMaxPlayers">Maximum Players required</label>
+            <input type="text" name="inputMaxPlayers" id="inputMaxPlayers">
+
+            <label for="inputBallSize">Ball Size</label>
+            <input type="text" name="inputBallSize" id="inputBallSize">
+
+            <label for="inputNetSize">Net Size</label>
+            <input type="text" name="inputNetSize" id="inputNetSize">
+
+            <input type="submit">
+        </fieldset>
+    </form> 
+</div><!-- insert -->
+
+<script src="./js/divisions/add_division.js"></script>
+
+<p>&nbsp;</p> 
+
+
+
+ </body>

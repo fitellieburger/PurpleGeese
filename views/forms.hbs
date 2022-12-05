@@ -1,0 +1,38 @@
+<!-- Page developed by Michael McDonell -->
+
+<head>
+<title>Forms</title>
+</head>
+<h1> Forms </h1>
+<h2>Browse Forms</h2>
+<legend><strong><a href='orders'><button>Register a Player or Volunteer on the Orders Page</button></a></strong></legend>
+<br/>
+<caption>Transaction History of All Registrations</caption>
+<br/><br/>
+
+<div id="browse">  
+   <table id="formTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.formID}}>  
+               <td>{{this.formID}}</td>
+               <td>{{this.formDetails}}</td>  
+               <td>{{this.orderID}}</td>  
+               <td>{{this.division}}</td>  
+               <td>{{this.player}}</td>  
+               <td>{{this.adult}}</td>  
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+</div>  

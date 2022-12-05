@@ -1,0 +1,117 @@
+<!--
+    Page and .js by Danielle Burger
+
+    Citation for the code turned in for CS 340 Step 4
+    Date: 11/10/2022
+    Adapted fromNode Starter App
+    Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+
+<head>
+<title>Volunteers</title>
+</head>
+<body>
+
+
+<h1>Volunteers</h1>
+<h2>Browse or Update Volunteers</h2>
+
+<!-- insert -->
+<legend><strong><a href='orders'><button>Register a Volunteer on the Orders Page</button></a></strong></legend>
+<!-- /insert -->
+<br/>
+
+<div id="searchByRole">
+  <form id="searchRole" method="GET" action='/volunteers'>
+      <legend><strong>See Volunteers By Role</strong></legend>
+          <label>Volunteer Role</label>
+            <select name="role" id="inputRoleSearch">
+                <option value="">Select a Role</option>
+                {{#each volunteers}}
+                <option value="{{this.role}}">{{this.role}}</option>
+                {{/each}}
+            </select>
+      <button type="submit">See Volunteers in This Role</button>
+      <a href='/volunteers'><button>Reset</button></a>
+  </form>
+</div>
+<!-- search -->
+<br/>
+
+<!-- update -->
+<form id="updateVolunteerhtml">
+<div id ="updateVolunteerTeam">
+
+<legend><strong>Update Volunteer Team and/or Role Details</legend></strong>
+            <!-- team dropdown -->
+          <label>Choose Team</label>
+          <select id="teamUpdate">
+                <option value=0>No Change</option>
+                <option value="NULL">No Team</option>
+                {{#each teams}}
+                <option value="{{this.teamID}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+            <!-- choose action for form -->
+            <input type="radio" id="changeTeam" name="addOrChange" value="changeTeam">
+            <label for="changeTeam">Change this Role</label>
+            <input type="radio" id="addTeam" name="addOrChange" value="addTeam">
+            <label for="addTeam">Add Line with New Team or Notes</label>
+            <br/>
+            <label for="details">Notes: </label>
+            <input type=text id="details" name="details">
+    <button type="submit">Update Volunteer</button>
+</div>
+<br/>
+
+<div id="browse">  
+   <table id="volunteerTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+                
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+               
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+            <!-- volunteerID = 'Select', to simplify readability for user -->
+
+           <tr data-value={{this.Select}}>  
+                <td><input type="checkbox" id="{{this.Select}}" name="update" value="{{this.Select}}"></td>
+               <td>{{this.Season}}</td>  
+               <td>{{this.Division}}</td>  
+               <td>{{this.Team}}</td>  
+               <td>{{this.Name}}</td>  
+               <td>{{this.Role}}</td>  
+               <td>{{this.Details}}</td> 
+               <td>{{this.Phone}}</td> 
+               <td>{{this.email}}</td> 
+                <td><button type="button" onclick="deleteVolunteer({{this.Select}})">Delete</button></td>
+               
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+   <!-- delete js -->
+   <script src="./js/volunteers/delete_volunteer.js"></script>
+</div>  
+<input name="SelectedValues" type="hidden" value=""> 
+</form>
+
+<p>&nbsp;</p> 
+
+
+</div><!-- update js -->
+<script src="./js/volunteers/update_volunteer.js"></script>
+
+
+<p>&nbsp;</p> 
+
+
+ </body>

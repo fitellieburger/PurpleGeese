@@ -1,0 +1,118 @@
+<!--
+    Citation for the code turned in for CS 340 Step 4
+    Date: 11/10/2022
+    Adapted fromNode Starter App
+    Source URL: https://github.com/osu-cs340-ecampus/nodejs-starter-app
+-->
+
+<head>
+<title>Seasons with Divisions</title>
+</head>
+<body>
+
+<h1>Seasons With Divisions</h1>
+<h2>View Season and Division Connections</h2>
+<legend><strong><a id="addSeason"><button>Add a Season Below</button></a></strong></legend>
+<br/>
+
+<div id="searchByDivision">
+  <form id="searchByDivision" method="GET" action='/seasons'>
+      <legend><strong>See Seasons By Division</strong></legend>
+          <select name="divisionID" id="searchDivision">
+                <option value="">Select a Division</option>
+                {{#each divisions}}
+                <option value="{{this.divisionID}}">{{this.description}}</option>
+                {{/each}}
+            </select>
+      <button type="submit">View Seasons</button>
+      <a href='/seasons'><button>Reset</button></a>
+  </form>
+</div><!-- search -->
+
+
+<br/>
+<div id="addDivision">
+{{!-- Form to add a record to the table using standard HTML forms --}}
+<legend><strong>Division Quick Add</strong></legend>
+<form id="add-seasonDivision-form" method="POST" action="/add-seasonDivision-form">
+     <label> Season </label>
+     <select name="select-season" id="select-season">
+              <option value=" " selected>Season</option>
+              {{#each seasons}}
+                <option value="{{this.seasonID}}">{{this.description}}</option>
+                {{/each}}
+                </select>
+
+    <label> Division to Add: </label> 
+            <select name="select-division" id="select-division">
+              <option value="">Choose Division</option>
+              {{#each divisions}}
+                <option value="{{this.divisionID}}">{{this.description}}</option>
+                {{/each}}             
+                </select>          
+          <input class="btn" type="submit" id="addSeasonDivision" value="Add SeasonDivision">
+          <input class="btn" type="button" value="Cancel" onClick="browseSeasons()">
+	    </form> 
+</div><!-- insert -->
+
+<br/>
+
+<div id="browse">  
+   <table id="seasonDivisionTable" border="1" cellpadding="5">  
+       <thead>  
+           <tr>  
+               {{#each data.[0]}}  
+               <th>  
+                   {{@key}}  
+               </th>  
+               {{/each}}  
+           </tr>  
+       </thead>  
+         
+       <tbody>  
+           {{#each data}}  
+           <tr data-value={{this.seasonDivisionID}}>  
+                <td>{{this.seasonDivisionID}}</td>
+               <td>{{this.Season}}</td>  
+                <td>{{this.Division}}</td>  
+                <td>{{this.StartDate}}</td>  
+               <td>{{this.EndDate}}</td>      
+                <td><button onclick="deleteSeasonDivision({{this.seasonDivisionID}})">Delete</button></td>
+           
+           </tr>  
+           {{/each}}  
+       </tbody>  
+   </table>  
+   <script src="./js/seasonsdivisions/delete_seasondivision.js"></script>
+</div>  
+
+<p>&nbsp;</p> 
+<br/>
+
+<div id="insert">
+{{!-- Form to add a record to the table using standard HTML forms --}}
+ <legend id="addSeason"><strong>Add a New Season</strong></legend>
+
+<form id="addSeasonForm">
+<fieldset class="fields">
+
+    <label for="input-desc">Season Description: </label>
+    <input type="text" name="input-desc" id="input-desc">
+    <label>Season Fee: </label> <input type="number" name="input-fee" id="input-fee"> 
+
+    <br/>
+    <label>Start Date: </label> <input type="date" name="input-startDate" id="input-startDate"> 
+    
+    <label>End Date: </label> <input type="date" name="input-endDate" id="input-endDate"> 
+    <br />
+    
+
+
+          <input class="btn" type="submit" id="addSeason" value="Add Season">
+          <input class="btn" type="button" value="Cancel" onClick="browseSeasons()">
+	</fieldset>
+    </form>
+
+<script src="./js/seasons/add_season.js"></script>
+</div>
+ </body>

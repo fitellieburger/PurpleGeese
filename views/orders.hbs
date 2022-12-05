@@ -1,0 +1,219 @@
+<!-- Page developed by Michael McDonell -->
+
+
+<head>
+<title>Orders</title>
+</head>
+
+<script language="JavaScript">
+    function showOSVolunteerForm(dowhat) {
+
+        var checkBox = document.getElementById("inputIsVolunteer");
+        if(checkBox.checked == true) {
+            document.getElementById('insertOSVolunteerForm').style.display = "block";
+        }
+        else{
+            document.getElementById('insertOSVolunteerForm').style.display = "none";
+        }
+    }
+    function newOSVolunteerForm() {showOSVolunteerForm('insertOSVolunteerForm');}
+</script> 
+
+<body> <!-- onload="browseOrders()"> --> 
+<h1>Orders</h1>
+<h2>Submit an Order for <u>Spring 2023</u></h2>
+<h2>Submitting an Order inserts an Adult, an Order and a Form. It can also insert a Player and a Volunteer too!</h2>
+
+<div id="insertAdult">
+    <form id="insertAdultAjaxForm">
+        <legend><strong>If you are not already in the database, add yourself and then select yourself!</strong></legend>
+        <fieldset class="fields">
+            <label for="inputFirstName"> First Name </label>
+            <input type="text" name="inputFirstName" id="inputFirstName">
+
+            <label for="inputLastName"> Last Name </label> 
+            <input type="text" name="inputLastName" id="inputLastName">
+
+            <label for="inputPhone"> Phone Number </label> 
+            <input type="text" name="inputPhone" id="inputPhone" placeholder="123-4567">
+
+            <label for="inputEmail"> Email </label> 
+            <input type="text" name="inputEmail" id="inputEmail">
+
+            <label for="inputIsGuardian"> Are you the guardian of this player? </label>
+            <!-- <input type="number" name="inputIsGuardian" id="inputIsGuardian" min="0" max="1"> -->
+            <select name="inputIsGuardian" id="inputIsGuardian">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+            </select>
+
+            <label for="inputConnectedAdultID"> Is there another Adult we can contact? </label>
+            <!-- <input type="number" name="inputConnectedAdultID" id="inputConnectedAdultID"> -->
+            <select name="inputConnectedAdultID" id="inputConnectedAdultID">
+                <option value=""> Select secondary Adult guardian</option>
+                {{#each data}}
+                    <option value="{{this.adultID}}">{{this.firstName}} {{this.lastName}}</option>
+                {{/each}}
+            </select>
+
+            <label for="inputIsVolunteer"> Join as a volunteer? </label>
+            <input type="checkbox" name='inputIsVolunteer' id="inputIsVolunteer" value="yes" onclick="newOSVolunteerForm()">
+                <p id="insertOSVolunteerForm" style="display:none">
+                <legend><strong>As Volunteer</strong></legend>
+                <label> Role </label> <input type="text" id="inputRole" name="inputRole">
+                <label> Details </label> <input type="text"id="inputDetails" name="inputDetails">
+        </fieldset>
+        <input type="submit" value="Add Adult">
+    </form>  <!-- InsertAdultAjax  -->
+</div> <!-- InsertAdult  -->
+<script src="./js/orders/add_adult_order.js"></script>
+
+
+<p></p>
+<!-- PLAYER FORM -->
+<p></p>        
+
+<div id="insertPlayer">
+    <form id="insertPlayerAjaxForm">
+        <legend><strong>If your child is not already in the database, add them and then select them!</strong></legend>
+        <fieldset class="fields">
+
+            <label for="inputPlayerFirstName"> First Name </label> 
+            <input type="text" name="inputPlayerFirstName" id="inputPlayerFirstName">
+
+            <label for="inputPlayerLastName"> Last Name </label> 
+            <input type="text" name="inputPlayerLastName" id="inputPlayerLastName">
+
+            <label for="inputGender"> Gender </label> <select name="inputGender" id="inputGender">
+                <option value="0">&nbsp;</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="N">Non-Binary</option>
+                </select>
+
+            <label for="inputDOB"> Birthdate </label> 
+            <input type="date"id="inputDOB" name="inputDOB">
+
+            <select name="inputPrimaryAdultID" id="inputPrimaryAdultID">
+                <option value=""> Select a Primary Adult </option>
+                {{#each primaryAdults}}
+                    <option value="{{this.adultID}}">{{this.adultName}}</option>
+                {{/each}}
+            </select>
+
+            <select name="inputTeamID" id="inputPlayerTeamID">
+                <option value=""> Select a Team </option>
+                {{#each teams}}
+                <option value="{{this.teamID}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </p>
+        <input type="submit" value="Add Player">
+        </fieldset>
+    </form><!-- insert player form -->
+</div><!-- player form -->
+<script src="./js/orders/add_player_order.js"></script>
+
+<p></p>
+
+<!-- VOLUNTEER FORM -->
+
+<div id="insertVolunteer">
+    <form id="insertVolunteerAjaxForm">
+        <legend><strong> If the volunteer is not already in the database, add them and then select them!</strong></legend>
+        <fieldset class="fields">
+            <label for="inputFirstNameV"> First Name </label> 
+            <input type="text" name="inputfirstNameV" id="inputFirstNameV">
+
+            <label for="inputLastNameV"> Last Name </label> 
+            <input type="text" name="inputLastNameV" id="inputLastNameV">
+
+            <label for="inputPhoneV"> Phone Number </lable> 
+            <input type="text" name="inputPhoneV" id="inputPhoneV" placeholder="123-4567">
+            
+            <label for="inputEmailV"> Email </label> 
+            <input type="text" name="inputEmailV" id="inputEmailV">
+
+            <input type="hidden" id="inputIsGuardianV" value="0">
+
+            <label for="inputConnectedAdultIDV"> Is there another Adult we can contact? </label>
+            <!-- <input type="number" name="inputConnectedAdultIDV" id="inputConnectedAdultIDV"> -->
+            <select name="inputConnectedAdultIDV" id="inputConnectedAdultIDV">
+                <option value=""> Select secondary Adult guardian</option>
+                {{#each data}}
+                    <option value="{{this.adultID}}">{{this.firstName}} {{this.lastName}}</option>
+                {{/each}}
+            </select>
+            
+            <label for="inputVolunteerRoleV"> Role </label> 
+            <input type="text" id="inputRoleV" name="inputVolunteerRoleV">
+            <label for="inputVolunteerDetailsV"> Details </label> <input type="text"id="inputDetailsV" name="inputVolunteerDetailsV">
+            <label for="inputTeamIDV"> Team </label>
+            <select name="inputTeamIDV" id="inputTeamIDV">
+                <option value=""> Select a Team</option>
+                {{#each teams}}
+                    <option value="{{this.teamID}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+            </p>
+            <input type="submit" value="Add Volunteer">
+        </fieldset>
+    </form>
+</div><!-- insertVolunteer -->
+<script src="./js/orders/add_volunteer_order.js"></script>
+
+<p></p>
+
+<p></p>
+<h2>Insert Order and Form</h2>
+<label>Hint refresh page to see newly inserted Adults, Players and Volunteers.</label>
+<p></p>
+<fieldset>
+    <form id="insertOrderAjax">
+        <label for="Adult">Select Adult: </label>
+        <select name="inputOrderAdult" id="inputOrderAdult">
+            <option value="">Select an Adult</option>
+            {{#each data}}
+            <option value="{{this.adultID}}">{{this.firstName}} {{this.lastName}}</option>
+            {{/each}}
+        </select>
+        <label for="Player">Select Player: </label>
+        <select name="inputOrderPlayer" id="inputOrderPlayer">
+            <option value="">Select a Player</option>
+            {{#each players}}
+            <option value="{{this.playerID}}">{{this.firstName}} {{this.lastName}}</option>
+            {{/each}}
+        </select>
+        <label for="Volunteer">Select VolunteerAdult: </label>
+        <select name="inputOrderVolunteer" id="inputOrderVolunteer">
+            <option value="">Select a Volunteer</option>
+            {{#each volunteers}}
+            <option value="{{this.adultID}}">{{this.firstName}} {{this.lastName}}</option>
+            {{/each}}
+        </select>
+
+        <label for="orderDate"> Order Date: </label>
+        <input type="date" name="inputOrderDate" id="inputOrderDate">
+
+        <label for="orderTotal"> Order Total: </label>
+        <input type="number" name="inputOrderTotal" id="inputOrderTotal">
+
+        <label for="Odetails">Order Details: </label>
+        <input type="text" name="orderDetails" id="inputOrderDetails">
+
+        <label for="Fdetails">Form Details: </label>
+        <input type="text" name="formDetails" id="inputFormDetails">
+
+        <label for="Fdivision">Form Division: </label>
+        <select name="inputFormDivision" id="inputFormDivision">
+            <option value="">Select Division </option>
+            {{#each divisions}}
+            <option value="{{this.seasonDivisionID}}">{{this.description}}</option>
+            {{/each}}
+        </select>
+
+        <input type="submit" value="Submit Order">
+    </form>
+    </fieldset>
+<script src="./js/orders/add_order.js"></script>
+</body>
